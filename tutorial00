@@ -1,0 +1,26 @@
+var five = require("johnny-five");
+var axios = require('axios');
+var board = new five.Board();
+
+const url = "https://api.coinmarketcap.com/v1/ticker/nano/?convert=BRL";
+
+board.on("ready", function() {
+
+	var lcd = new five.LCD({controller: "JHD162A", pins: [7, 8, 9, 10, 11, 12]});
+
+	lcd.cursor(0, 0).print("Cotacao Nano:");
+
+	axios.get(url)
+	    .then((r) => {
+	    	if(!r.data.error){
+                var price = parseFloat(r.data[0].price_brl).toFixed(2);
+	    		lcd.cursor(1, 0).print('R$' + price.toString());
+	    	}
+	    	else{
+	    		lcd.cursor(1, 0).print("Não foi possível");
+	    	}
+	    })
+	    .catch((e) => {
+	    	lcd.cursor(1, 0).print(e);
+	    });
+});
